@@ -1,0 +1,14 @@
+spring:
+  # 数据库连接池
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://117.72.49.250:3306/tlias?useUnicode=true&characterEncoding=utf-8&useSSL=true
+    username: root
+    password: 123456
+    hikari:
+      minimum-idle: 5               # 最小空闲连接数，启动时会初始化这些连接
+      maximum-pool-size: 20         # 最大连接数，根据并发量适当调整
+      idle-timeout: 600000          # 空闲连接最大存活时间（10分钟）
+      max-lifetime: 1800000         # 连接最大存活时间（30分钟）
+      connection-timeout: 3000      # 获取连接最大等待时间（ms）
+      initialization-fail-timeout: 1  # 初始化失败后立即报错（而不是无限等待）

@@ -1,0 +1,40 @@
+server:
+  port: 8080
+spring:
+  profiles:
+    active: prod  # 默认环境，可在启动时覆盖
+  application:
+    name: Tlias-web-management
+  servlet:
+    multipart:
+      # 上传单个文件大小限制
+      max-file-size: 10MB
+      # 上传最大请求的大小（包含所有文件和表单数据）
+      max-request-size: 100MB
+# mybatis 配置
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 开启驼峰命名(解决实体类属性与数据库字段名不一致问题，需要遵守驼峰命名)
+    map-underscore-to-camel-case: true
+# 日志配置（类级别 > 包级别 > root）
+logging:
+  level:
+    org.springframework.jdbc.support.JdbcTransactionManager: debug # 配置事务管理的底层日志级别
+    root: info  # 全局日志级别（默认 info）
+    com.alivinfer: debug  # 指定包下开启 debug 日志
+  file:
+    name: logs/app.log  # 输出到文件（单文件）
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+# 阿里云存储配置
+aliyun:
+  oss:
+    endpoint: https://oss-cn-zhangjiakou.aliyuncs.com
+    bucketName: alivin-oss
+    region: cn-zhangjiakou
+# jwt 配置
+jwt:
+  secretKey: oIHDL0tcvbFmjH1HJWz2WkV8a28eOiMNBLMJYMnUwUo= # 签名密钥
+  expiration: 3600000 # 有效期：1小时，单位毫秒

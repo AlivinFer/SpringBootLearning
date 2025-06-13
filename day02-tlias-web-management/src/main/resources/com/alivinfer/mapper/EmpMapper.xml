@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.alivinfer.mapper.EmpMapper">
+
+    <!--分页查询 where 标签会自动去除条件前面多余的 and 或 or-->
+    <select id="searchEmp" resultType="com.alivinfer.pojo.Emp">
+        select e.*, d.name deptName
+        from emp e
+                 left join dept d on e.dept_id = d.id
+        <where>
+            <if test="name != null and name != ''">
+                e.name like concat('%', #{name}, '%')
+            </if>
+            <if test="gender != null" >
+                and e.gender = #{gender}
+            </if>
+            <if test="begin != null and end != null">
+                and e.entry_date between #{begin} and #{end}
+            </if>
+        </where>
+        order by e.update_time desc
+    </select>
+
+    <!-- 保存员工基本信息
+         useGeneratedKeys="true": 获取数据库提供的主键值
+         keyProperty="id"：获取的是主键id属性
+     -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into emp(username, name, gender, phone, job, salary, image, entry_date, dept_id, create_time, update_time)
+        values (#{username}, #{name}, #{gender}, #{phone}, #{job}, #{salary}, #{image}, #{entryDate}, #{deptId}, #{createTime}, #{updateTime})
+    </insert>
+
+    <!--批量根据 id 删除员工基本信息-->
+    <delete id="deleteByIds">
+        delete from emp where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--resultMap: 复杂属性返回值使用此接收 collection 处理集合，ofType: 集合中的类型-->
+    <resultMap id="empResultMap" type="com.alivinfer.pojo.Emp">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="name" property="name"/>
+        <result column="gender" property="gender"/>
+        <result column="phone" property="phone"/>
+        <result column="job" property="job"/>
+        <result column="salary" property="salary"/>
+        <result column="image" property="image"/>
+        <result column="entry_date" property="entryDate"/>
+        <result column="dept_id" property="deptId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+
+        <collection property="exprList" ofType="com.alivinfer.pojo.EmpExpr">
+            <id column="ee_id" property="id"/>
+            <result column="ee_empId" property="empId"/>
+            <result column="ee_begin" property="begin"/>
+            <result column="ee_end" property="end"/>
+            <result column="ee_company" property="company"/>
+            <result column="ee_job" property="job"/>
+        </collection>
+    </resultMap>
+
+    <!--根据 id 查询员工信息-->
+    <select id="getById" resultMap="empResultMap">
+        SELECT
+            e.*,
+            ee.id AS ee_id,
+            ee.emp_id AS ee_empId,
+            ee.job AS ee_job,
+            ee.company AS ee_company,
+            ee.`begin` AS ee_begin,
+            ee.`end` AS ee_edn
+        FROM emp e LEFT JOIN emp_expr ee
+        ON e.id = ee.emp_id
+        WHERE e.id = #{id};
+    </select>
+
+    <!-- 根据id动态更新员工信息
+          set: 动态更新 会自动生成set关键字，会自动删除更新字段后的多余逗号
+      -->
+    <update id="updateById">
+        update emp
+        <set>
+            <if test="username != null and username != ''">username=#{username},</if>
+            <if test="password != null and password!=''">password=#{password},</if>
+            <if test="name != null">name=#{name},</if>
+            <if test="gender != null">gender=#{gender},</if>
+            <if test="phone != null and phone !=''">phone=#{phone},</if>
+            <if test="job != null">job=#{job},</if>
+            <if test="salary != null">salary=#{salary},</if>
+            <if test="image != null and image !=''">image=#{image},</if>
+            <if test="entryDate != null">entry_date=#{entryDate},</if>
+            <if test="deptId != null">dept_id=#{deptId},</if>
+            <if test="updateTime != null">update_time=#{updateTime}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--统计员工人数信息-->
+    <select id="countEmpJobData" resultType="java.util.Map">
+        SELECT
+            (CASE WHEN job = 1 THEN '班主任'
+                  WHEN job = 2 THEN '讲师'
+                  WHEN job = 3 THEN '学生主管'
+                  WHEN job = 4 THEN '教研主管'
+                  WHEN job = 5 THEN '咨询师'
+                  ELSE '其他' END) AS pos,
+            count(*) AS num
+        FROM
+            emp e
+        GROUP BY
+            job
+        ORDER BY
+            num
+    </select>
+
+    <!--统计男性和女性员工数量-->
+    <select id="countEmpGenderDate" resultType="java.util.Map">
+        SELECT
+            IF (gender = 1, '男性员工', '女性员工') AS `name`,
+            count(*) AS `value`
+        FROM
+            emp e
+        GROUP BY
+            `gender`
+    </select>
+
+    <!--根据用户名和密码查询员工信息-->
+    <select id="selectByUsernameAndPwd" resultType="com.alivinfer.pojo.Emp">
+        select
+            id, username, name
+        from
+            emp
+        where
+            username = #{username} and password = #{password}
+    </select>
+</mapper>
