@@ -1,30 +1,154 @@
-# Getting Started
+# Tlias-web 管理系统项目知识点复盘总结
 
-### Reference Documentation
+## 🧩 一、项目概述
 
-For further reference, please consider the following sections:
+Tlias-web 是一个典型的**后台管理系统**项目，主要功能包括：
 
-* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/3.4.4/maven-plugin)
-* [Create an OCI image](https://docs.spring.io/spring-boot/3.4.4/maven-plugin/build-image.html)
-* [MyBatis Framework](https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/)
-* [Spring Web](https://docs.spring.io/spring-boot/3.4.4/reference/web/servlet.html)
+- 员工信息管理
+- 部门管理
+- 登录鉴权
+- 分页查询
+- 文件上传
+- 数据报表统计
 
-### Guides
+项目采用前后端分离模式，前端使用 Vue3 + Element Plus，后端基于 SpringBoot 快速搭建，适合初学者进行全栈实战练习
 
-The following guides illustrate how to use some features concretely:
+![1749801560171](assets/1749801560171.png)
 
-* [MyBatis Quick Start](https://github.com/mybatis/spring-boot-starter/wiki/Quick-Start)
-* [Accessing data with MySQL](https://spring.io/guides/gs/accessing-data-mysql/)
-* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
-* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
-* [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
+------
 
-### Maven Parent overrides
+![1749801577882](assets/1749801577882.png)
 
-Due to Maven's design, elements are inherited from the parent POM to the project POM.
-While most of the inheritance is fine, it also inherits unwanted elements like `<license>` and `<developers>` from the
-parent.
-To prevent this, the project POM contains empty overrides for these elements.
-If you manually switch to a different parent and actually want the inheritance, you need to remove those overrides.
+![1749801603108](assets/1749801603108.png)
+
+## ⚙️ 二、技术选型
+
+### 后端（Java）
+
+| 技术        | 用途说明           |
+| ----------- | ------------------ |
+| Spring Boot | 构建 REST 接口框架 |
+| MyBatis     | 简化 ORM 开发      |
+| Lombok      | 减少样板代码       |
+| JWT         | 实现用户登录认证   |
+| @Slf4j 注解 | 日志记录           |
+| AliyunOSS   | 阿里云文件存储     |
+| aop         | 操作日志切面       |
+
+### 前端（Vue）
+
+| 技术         | 用途说明             |
+| ------------ | -------------------- |
+| Vue3 + Vite  | 前端主框架           |
+| Vue Router   | 路由管理             |
+| Element Plus | UI组件库             |
+| Axios        | 请求库，封装请求逻辑 |
+| Pinia        | 状态管理（可选）     |
+
+------
+
+## 🧱 三、模块拆解
+
+### 1️⃣ 登录模块
+
+- 用户通过表单输入用户名密码
+- 后端使用 JWT 生成 token
+- 登录成功后前端将 token 存储在 localStorage
+- 后续请求通过 Axios 请求拦截器带上 token
+
+**易错点：**
+
+- 注意 token 是 Bearer 类型，需要拼接 `Bearer + 空格 + token`
+- 后端需要进行 token 拦截处理和过期判断
+- 后端通过拦截器解析token，可以进行权限认证等一些处理
+
+### 2️⃣ 班级学员管理
+
+- 查询员工列表（条件过滤	）
+- 添加、修改、删除员工
+
+**关键点：**
+
+- 查询支持分页与多条件（姓名、时间等）查询
+- 使用 PageHelper 提供的分页功能
+- 使用阿里云存储上传头像，返回文件 URL
+
+### 3️⃣ 系统信息模块
+
+- 添加、编辑、删除部门
+- 员工管理（增删改查）
+- 上传头像
+
+**易错点：**
+
+- 删除部门时需判断是否存在子部门或员工，否则会违反业务约束
+- 员工工作经历单独建表处理
+
+### 4️⃣ 数据统计管理
+
+- 柱状图/饼状图
+- 操作日志信息管理
+
+**关键点：**
+
+- 数据封装
+- 操作日志切面处理
+
+------
+
+## 🔐 四、权限认证与拦截
+
+- 使用 JWT 实现认证，不使用传统 Session
+- 后端通过拦截器校验 Token 有效性
+- 不同用户角色可控制访问菜单（进阶权限控制）
+
+------
+
+## ⚠️ 五、开发易错点总结
+
+| 模块          | 易错点描述                                           |
+| ------------- | ---------------------------------------------------- |
+| 登录认证      | Token 拼接格式错误、未配置拦截器、token 过期判断遗漏 |
+| 分页查询      | 分页参数错误、前后参数名称不统一                     |
+| 文件上传      | aliyun配置错误、返回 URL 拼接不正确                  |
+| 柱状图/饼状图 | 封装返回的数据格式                                   |
+| 操作日志      | ThreadLocal 的使用                                   |
+
+------
+
+## 📌 六、学习建议
+
+1. **跟着敲代码，不要只看不写**
+2. 理解前后端交互流程（接口定义 + 参数传递 + 异常处理）
+3. 多调试 Swagger 接口，加深后端接口开发印象
+4. 将项目部署到服务器并上线练习
+5. 记录学习过程中遇到的问题
+
+------
+
+## 💡 七、项目可拓展点（进阶）
+
+- 集成权限框架：Shiro / Spring Security
+- 数据缓存：Redis 加速查询
+- 接口限流：防止刷接口
+- 多模块开发：拆分成微服务架构
+- 日志追踪：链路日志跟踪
+- 数据库池提前初始化
+- 自动化脚本打包
+- 多个配置文件，生产环境/测试环境
+
+------
+
+## 📁 八、项目地址（参考）
+
+如果你需要搭建类似项目，可参考以下开源地址或自己动手从零开发：
+
+- GitHub：
+- B 站 黑马程序员官方账号
+
+------
+
+## 📌 总结一句话
+
+> **Tlias 是一款非常适合 Java 初中级开发者练手的全栈项目，涵盖了日常开发中的大部分技术点！**
 
