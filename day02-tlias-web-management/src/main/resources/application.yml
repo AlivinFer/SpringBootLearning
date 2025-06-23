@@ -32,9 +32,9 @@ logging:
 aliyun:
   oss:
     endpoint: https://oss-cn-zhangjiakou.aliyuncs.com
-    bucketName: alivin-oss
-    region: cn-zhangjiakou
+    bucketName: test-oss
+    region: cn-beijing
 # jwt 配置
 jwt:
-  secretKey: oIHDL0tcvbFmjH1HJWz2WkV8a28eOiMNBLMJYMnUwUo= # 签名密钥
+  secretKey: ddddddafafafafafaggegegwgwegwgwgwgwgwg= # 签名密钥
   expiration: 3600000 # 有效期：1小时，单位毫秒
